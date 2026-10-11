@@ -1,6 +1,6 @@
 # Study.Track
 StudyTracker es un proyecto desarrollado en Python para ayudar a estudiantes a organizar sus notas y evaluaciones. Incluye los principales ramos del sistema escolar chileno y utiliza su escala de calificaciones.
-##FUNCIONALIDADES
+## FUNCIONALIDADES
 Permite agregar, editar, eliminar y consultar notas organizadas por ramo, además de calcular sus promedios. También permite gestionar evaluaciones y consultar las próximas pruebas de las siguientes dos semanas.
 Cuenta con un resumen académico que muestra el promedio, la nota mínima y la nota máxima de cada ramo, además del promedio general y los ramos con mayor y menor promedio.
 ## Guardado de datos
