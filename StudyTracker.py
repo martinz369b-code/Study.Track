@@ -1,5 +1,6 @@
 import json
 from datetime import datetime
+import matplotlib.pyplot as plt
 ARCHIVO = "notss.json"
 ARCHIVO_EVA = "evaluaciones.json"
 tipsos = ["Prueba", "Lectura", "Trabajo", "Proceso"]
@@ -54,7 +55,7 @@ def ver_notas(ramos):
             promedio = sum(ramos[ramo]) / len(ramos[ramo])
 
             print(
-                f'{nombres_ramos[ramo]:<12} | {notas_txt:<25} | {promedio:.1f}')
+                f'{nombres_ramos[ramo]:<12} | {notas_txt:<25} | {promedio:<4.1f}')
 
         else:
             print(
@@ -99,8 +100,8 @@ def ver_resumen_general(ramos):
         if len(ramos[c]) != 0:
             r = 1
     if r != 0:
-        print(f'{"RAMO":<12} | {"MÍNIMA":<6} | {"MÁXIMA":<6} | {"PROMEDIO":<8}')
-        print("-" * 43)
+        print(f'{"RAMO":<12} | {"MÍNIMA":<6} | {"MÁXIMA":<6} | {"PROMEDIO":<8} | {"Tendencia":<10}')
+        print("-" * 53)
     sin_notas = []
     maxia = ""
     minia = ""
@@ -111,8 +112,8 @@ def ver_resumen_general(ramos):
             mini = min(ramos[ramo])
             maxi = max(ramos[ramo])
             prom = sum(ramos[ramo]) / len(ramos[ramo])
-            print(
-                f'{nombres_ramos[ramo]:<12} | {mini:<6.1f} | {maxi:<6.1f} | {prom:<8.2f}')
+            tend = interpretar_tendencia(ramo)
+            print(f'{nombres_ramos[ramo]:<12} | {mini:<6.1f} | {maxi:<6.1f} | {prom:<8.2f} | {tend:<8}')
             if minia == "":
                 minia = prom
                 minin = nombres_ramos[ramo]
@@ -133,7 +134,7 @@ def ver_resumen_general(ramos):
         prom = promg / promgn
         print("")
         print("Sin notas:", ", ".join(sin_notas))
-        print("Promedio General: ", prom)
+        print("Promedio General: ", f'{prom:<4.3f}')
         print("Mejor Ramo: ", maxin, "Con ", maxia)
         print("Peor Ramo: ", minin, "Con", minia)
     else:
@@ -262,74 +263,76 @@ def agregar_evaluaciones():
                 nombre = input("Nombre: ")
                 if nombre == "0":
                     return
-            if fecha == "": 
-                fecha =input("Nueva fecha (YYYY-MM-DD): ")
-                if fecha == "0":
-                    return
-                try:
-                    datetime.strptime(fecha, "%Y-%m-%d")
-                except ValueError:
-                    print("Ingresa Una Fecha Valida")
-            while True:
-                if tipo == 20:
-                    print("Ingrese tipo:")
-                    print("1. Prueba")
-                    print("2. Lectura")
-                    print("3. Trabajo")
-                    print("4. Proceso")
-                    try:
-                        tipo = int(input("Ingrese Tipo De Evaluación: "))
-                        if tipo == 0:
+                if fecha == "":
+                    while fecha == "":
+                        fecha =input("Nueva fecha (YYYY-MM-DD): ")
+                        if fecha == "0":
                             return
-                        if 0 < tipo < 5:
-                            tipo = tipsos[tipo - 1]
-                            while True:
-                                try:
-                                    if priori == "":
-                                        priori = int(input("Prioridad 1 al 3: "))
-                                        if priori == 0:
-                                            return
-                                        if 0 < priori < 4:
-                                            print("Ingrese Estado")
-                                            print("1. Pendiente")
-                                            print("2. Preparada")
-                                            print("3. Evaluada")
-                                            while True:
-                                                try:
-                                                    estado = int(input("Estado 1/3: "))
-                                                    if estado == 0:
-                                                        return
-                                                    if 0 < estado < 4:
-                                                        estado = estd[estado - 1]
-                                                        nueva_eva = {
-                                                            "ramo": ramo,
-                                                            "nombre": nombre,
-                                                            "fecha": fecha,
-                                                            "tipo": tipo,
-                                                            "prioridad": priori,
-                                                            "estado": estado
-                                                        }
-                                                        eva.append(nueva_eva)
-                                                        print("Evaluacion Agregada")
-                                                        guardar_evaluaciones()
-                                                        return
+                        try:
+                            datetime.strptime(fecha, "%Y-%m-%d")
+                        except ValueError:
+                            print("Ingresa Una Fecha Valida")
+                            fecha = ""
+                    while True:
+                        if tipo == 20:
+                            print("Ingrese tipo:")
+                            print("1. Prueba")
+                            print("2. Lectura")
+                            print("3. Trabajo")
+                            print("4. Proceso")
+                            try:
+                                tipo = int(input("Ingrese Tipo De Evaluación: "))
+                                if tipo == 0:
+                                    return
+                                if 0 < tipo < 5:
+                                    tipo = tipsos[tipo - 1]
+                                    while True:
+                                        try:
+                                            if priori == "":
+                                                priori = int(input("Prioridad 1 al 3: "))
+                                                if priori == 0:
+                                                    return
+                                                if 0 < priori < 4:
+                                                    print("Ingrese Estado")
+                                                    print("1. Pendiente")
+                                                    print("2. Preparada")
+                                                    print("3. Evaluada")
+                                                    while True:
+                                                        try:
+                                                            estado = int(input("Estado 1/3: "))
+                                                            if estado == 0:
+                                                                return
+                                                            if 0 < estado < 4:
+                                                                estado = estd[estado - 1]
+                                                                nueva_eva = {
+                                                                    "ramo": ramo,
+                                                                    "nombre": nombre,
+                                                                    "fecha": fecha,
+                                                                    "tipo": tipo,
+                                                                    "prioridad": priori,
+                                                                    "estado": estado
+                                                                }
+                                                                eva.append(nueva_eva)
+                                                                print("Evaluacion Agregada")
+                                                                guardar_evaluaciones()
+                                                                return
 
-                                                    else:
-                                                        print("Ingrese un numero del 1 al 3")
-                                                except ValueError:
-                                                    print("Ingresa numeros Enteros")
+                                                            else:
+                                                                print("Ingrese un numero del 1 al 3")
+                                                        except ValueError:
+                                                            print("Ingresa numeros Enteros")
 
-                                        else:
-                                            print("Ingrese número de la escala")
-                                            priori = ""
-                                except ValueError:
-                                    print("Ingresa Numeros Enteros")
-                        else:
-                            print("Ingrese Evaluacion Posible")
-                            tipo = 20
-                    except ValueError:
-                        print("Ingrese numeros")
-                        tipo = 20
+                                                else:
+                                                    print("Ingrese número de la escala")
+                                                    priori = ""
+                                        except ValueError:
+                                            print("Ingresa Numeros Enteros")
+                                else:
+                                    print("Ingrese Evaluacion Posible")
+                                    tipo = 20
+                            except ValueError:
+                                print("Ingrese numeros")
+                                tipo = 20
         else:
             print("Ingrese un Ramo existente")
             ramo = ""
@@ -352,109 +355,117 @@ def editar_evaluacion():
     slct = ""
     numer = ""
     if len(eva) != 0:
-        for i, e in enumerate(eva):
-            print(f'{str(i + 1):<3} | {nombres_ramos[e["ramo"]]:<11} | {e["nombre"]:<30} | {e["tipo"]:<9} | {e["fecha"]:<10} | {"Prioridad: " + str(e["prioridad"]):<12} | {e["estado"]:<9}')
         while True:
             try:
                 if slct == "":
+                    for i, e in enumerate(eva):
+                        print(f'{str(i + 1):<3} | {nombres_ramos[e["ramo"]]:<11} | {e["nombre"]:<30} | {e["tipo"]:<9} | {e["fecha"]:<10} | {"Prioridad: " + str(e["prioridad"]):<12} | {e["estado"]:<9}')
                     slct = int(input("¿Qué Evaluación Quieres Editar?: "))
                     slct = slct - 1
                 if slct == -1:
                     return
                 elif -1 < slct < len(eva):
-                    if numer == "":
-                        print("Opciones A Editar")
-                        print("")
-                        for i, e in enumerate(campo):
-                            print(i + 1, e)
-                        numer = int(input("¿Qué Deseas Editar?: "))
-                        if numer == 0:
-                            return
-                        if 1 <= numer <= len(campo):
-                            zne = campo[numer - 1]
-                            print("Valor Actual: ", eva[slct][zne])
-                            while True:
-                                try:
-                                    if zne == "fecha": 
-                                        nw =input("Nueva fecha (YYYY-MM-DD): ")
-                                        if nw == "0":
-                                            return
-                                        try:
-                                            datetime.strptime(nw, "%Y-%m-%d")
-                                            eva[slct][zne] = nw
-                                            guardar_evaluaciones()
-                                            print("Fecha actualizada")
-                                            return
-                                        except ValueError:
-                                            print("Ingresa Una Fecha Valida")
-                                    elif zne == "nombre":
-                                        nw = input("¿Qué Nombre Quieres Poner?: ")
-                                        if nw == "0":
-                                            return
-                                        if nw == "":
-                                            print("Ingresa Un Nombre")
-                                        else:
-                                            eva[slct][zne] = nw
-                                            guardar_evaluaciones()
-                                            print("Nombre Actualizado")
-                                            return
-                                    elif zne == "ramo":
-                                        nw = input("¿Cual Es El Nuevo Ramo?")
-                                        if nw == "0":
-                                            return
-                                        if nw in ramos:
-                                            eva[slct][zne] = nw
-                                            guardar_evaluaciones()
-                                            print("Ramo Actualizado")
-                                            return
-                                        else:
-                                            print("Ingrese Un Ramo Existente.")
-                                    elif zne == "prioridad":
-                                        nw = int(input("Ingrese Una Prioridad 1 Al 3: "))
-                                        if nw == 0:
-                                            return
-                                        if 1 <= nw <= 3:
-                                            eva[slct][zne] = nw
-                                            guardar_evaluaciones()
-                                            print("Prioridad Actualizada")
-                                            return
-                                        else:
-                                            print("")
-                                    elif zne == "tipo":
-                                        for i in range(len(tipsos)):
-                                            print(i + 1, tipsos[i])
-                                        nw = int(input("Ingrese el Número Del Tipo: "))
-                                        if nw == 0:
-                                            return
-                                        if 1 <= nw <= len(tipsos):
-                                            nw = tipsos[nw - 1]
-                                            eva[slct][zne] = nw
-                                            guardar_evaluaciones()
-                                            print("Tipo Actualizado.")
-                                            return
-                                        else:
-                                            print("Ingrese Un Tipo Existente.")
-                                    elif zne == "estado":
-                                        for i in range(len(estd)):
-                                            print(i +1, estd[i])
-                                        nw = int(input("Ingresa el Número Del Estado: "))
-                                        if nw == 0:
-                                            return
-                                        if 1 <= nw <= len(estd):
-                                            nw = estd[nw - 1]
-                                            eva[slct][zne] = nw
-                                            guardar_evaluaciones()
-                                            print("Estado Actualizado.")
-                                            return
-                                        else:
-                                            print("Ingrese Un Estado Existente.")
-                                            
-                                except ValueError:
-                                    print("Ingresa Números Enteros")
-                                    
-                        else:
-                            print("Ingresa Un Número De La Lista.")
-                            numer = ""
+                    while True:
+                        if numer == "":
+                            print("Opciones A Editar")
+                            print("")
+                            for i, e in enumerate(campo):
+                                print(i + 1, e)
+                            try:
+                                numer = int(input("¿Qué Deseas Editar?: "))
+                            except ValueError:
+                                print("Ingrese Números Enteros.")
+                                numer = 13141509
+                            if numer == 13141509:
+                                numer = ""
+                            elif numer == 0:
+                                return
+                            elif 1 <= numer <= len(campo):
+                                zne = campo[numer - 1]
+                                print("Valor Actual: ", eva[slct][zne])
+                                while True:
+                                    try:
+                                        if zne == "fecha":
+                                            while True:
+                                                nw =input("Nueva fecha (YYYY-MM-DD): ")
+                                                if nw == "0":
+                                                    return
+                                                try:
+                                                    datetime.strptime(nw, "%Y-%m-%d")
+                                                    eva[slct][zne] = nw
+                                                    guardar_evaluaciones()
+                                                    print("Fecha actualizada")
+                                                    return
+                                                except ValueError:
+                                                    print("Ingresa Una Fecha Valida")
+                                        elif zne == "nombre":
+                                            nw = input("¿Qué Nombre Quieres Poner?: ")
+                                            if nw == "0":
+                                                return
+                                            if nw == "":
+                                                print("Ingresa Un Nombre")
+                                            else:
+                                                eva[slct][zne] = nw
+                                                guardar_evaluaciones()
+                                                print("Nombre Actualizado")
+                                                return
+                                        elif zne == "ramo":
+                                            nw = input("¿Cual Es El Nuevo Ramo?")
+                                            if nw == "0":
+                                                return
+                                            if nw in ramos:
+                                                eva[slct][zne] = nw
+                                                guardar_evaluaciones()
+                                                print("Ramo Actualizado")
+                                                return
+                                            else:
+                                                print("Ingrese Un Ramo Existente.")
+                                        elif zne == "prioridad":
+                                            nw = int(input("Ingrese Una Prioridad 1 Al 3: "))
+                                            if nw == 0:
+                                                return
+                                            if 1 <= nw <= 3:
+                                                eva[slct][zne] = nw
+                                                guardar_evaluaciones()
+                                                print("Prioridad Actualizada")
+                                                return
+                                            else:
+                                                print("")
+                                        elif zne == "tipo":
+                                            for i in range(len(tipsos)):
+                                                print(i + 1, tipsos[i])
+                                            nw = int(input("Ingrese el Número Del Tipo: "))
+                                            if nw == 0:
+                                                return
+                                            if 1 <= nw <= len(tipsos):
+                                                nw = tipsos[nw - 1]
+                                                eva[slct][zne] = nw
+                                                guardar_evaluaciones()
+                                                print("Tipo Actualizado.")
+                                                return
+                                            else:
+                                                print("Ingrese Un Tipo Existente.")
+                                        elif zne == "estado":
+                                            for i in range(len(estd)):
+                                                print(i +1, estd[i])
+                                            nw = int(input("Ingresa el Número Del Estado: "))
+                                            if nw == 0:
+                                                return
+                                            if 1 <= nw <= len(estd):
+                                                nw = estd[nw - 1]
+                                                eva[slct][zne] = nw
+                                                guardar_evaluaciones()
+                                                print("Estado Actualizado.")
+                                                return
+                                            else:
+                                                print("Ingrese Un Estado Existente.")
+                                                
+                                    except ValueError:
+                                        print("Ingresa Números Enteros")
+                                        
+                            else:
+                                print("Ingresa Un Número De La Lista.")
+                                numer = ""
                 else:
                     print("Ingresa Una Evalucion Existente.")
                     slct = ""
@@ -478,7 +489,7 @@ def eliminar_evaluacion():
                     elmn = elmn -1
                     while True:
                         try:
-                            print("¿Seguro De Que Quieres Eliminar", eva[elmn]["tipo"], eva[elmn]["ramo"], "?")
+                            print("¿Seguro De Que Quieres Eliminar", eva[elmn]["tipo"], nombres_ramos[eva[elmn]["ramo"]], "?")
                             print("1. Sí")
                             print("2. No")
                             rsp = int(input("Ingrese Número De Opción: "))
@@ -513,8 +524,106 @@ def cargar_evaluaciones():
 
     except (FileNotFoundError, json.JSONDecodeError):
         return []
-eva = cargar_evaluaciones()
+def obtener_promedios(ramos):
+    proms = {}
+    for r, n in ramos.items():
+        if len(n) > 0:
+            prom = sum(n) / len(n)
+            proms[r] = prom
+    return proms
+def graficar_promedios(ramos):
+    proms = obtener_promedios(ramos)
+    rmo = list(proms.keys())
+    val = list(proms.values())
+    bs = plt.bar(rmo, val)
+    plt.bar(rmo, val)
+    plt.ylim(1, 7.5)
+    plt.title("Promedios Por Ramo")
+    plt.xlabel("Ramo")
+    plt.ylabel("Promedio")
+    for b, v in zip(bs, val):
+        plt.text(
+            b.get_x() + b.get_width() / 2,
+            b.get_height()+ 0.05,
+            f"{v:.2f}",
+            ha="center",
+            va="bottom"
+        )
+    plt.show()
+def graficar_evolucion(ramos):
+    c = ""
+    while c == "":
+        c = input("¿Qué Ramo Quieres Ver Evolución?")
+        if c == "0":
+            return
+        if  c in ramos:
+            if len(ramos[c]) == 0:
+                print("No Hay Notas")
+                c = ""
+        else:
+            print("Ingrese Un Ramo Existente.")
+            c = ""
+    nt = ramos[c]
+    evols = list(range(1, len(nt) + 1))
+    prm = sum(nt) / len(nt)
+    plt.plot(evols, nt, marker="o", label="Notas")
+    if len(nt) >= 2:
+        m, b = calcular_tendencia(nt)
+        tendencia = [m * xi + b for xi in evols]
+        plt.plot(evols, tendencia, label="Tendencia")
+    plt.axhline(
+        y=prm,
+        linestyle="--",
+        label=f"Promedio: {prm: .2f}"
+        )
+    plt.ylim(1, 7.5)
+    plt.title(f"Evolución de notas - {c}")
+    plt.xlabel("Evaluación")
+    plt.ylabel("Nota")
+    plt.legend()
+    plt.show()
+def calcular_tendencia(n):
+    if len(n) < 2:
+        return None
+    x = list(range(1, len(n) + 1))
+    prmx = sum(x) / len(x)
+    prmy = sum(n) / len(n)
+    nmr = 0
+    dno = 0
+    for xi, yi in zip(x, n):
+        nmr += (xi - prmx)*(yi - prmy)
+        dno += (xi - prmx)**2
+    pnd = nmr / dno
+    b = prmy - prmx * pnd
+    return (pnd, b)
+def calcular_varianza(n):
+    if len(ramos[n]) < 2:
+        return 0
+    prm = sum(ramos[n]) / len(ramos[n])
+    p = 0
+    vr = 0
+    for e in ramos[n]:
+        p = (e - prm) ** 2
+        vr += p
+    vr = vr / len(ramos[n])
+    return vr
+def calcular_desviacion(n):
+    o = calcular_varianza(n)
+    if o == 0:
+        return 0
+    o = o ** 0.5
+    return o
+def interpretar_tendencia(n):
+    if len(ramos[n]) < 2:
+        return "Notas Insuficientes."
+    m, b = calcular_tendencia(ramos[n])
+    if m > 0:
+        return "Ascendente."
+    elif m < 0:
+        return "Descendente."
+    return "Sin Tendencia Lineal."
 ramos = cargar_notas()
+eva = cargar_evaluaciones()
 ingresado = False
 opcion = ""
 opcion_2 = ""
@@ -537,9 +646,8 @@ while opcion != "0":
             print("")
             print("1. Agregar Nota")
             print("2. Ver Notas")
-            print("3. Ver Promedio De Un Ramo")
-            print("4. Editar Nota")
-            print("5. Eliminar Nota")
+            print("3. Editar Nota")
+            print("4. Eliminar Nota")
             print("0. volver")
             opcion_1 = input("Ingrese Opción: ")
             if opcion_1 == "1":
@@ -547,10 +655,8 @@ while opcion != "0":
             elif opcion_1 == "2":
                 ver_notas(ramos)
             elif opcion_1 == "3":
-                ver_promedio_de_un_ramo(ramos)
-            elif opcion_1 == "4":
                 editar_nota(ramos)
-            elif opcion_1 == "5":
+            elif opcion_1 == "4":
                 eliminar_nota(ramos)
      
     elif opcion == "2":
@@ -583,6 +689,7 @@ while opcion != "0":
             print("1. Ver Notas")
             print("2. Promédio General")
             print("3. Próximas Evaluaciones")
+            print("4. Graficar Evolución")
             print("0. volver")
             opcion_3 = input("Ingrese Opción: ")
             if opcion_3 == "1":
@@ -591,4 +698,5 @@ while opcion != "0":
                 ver_resumen_general(ramos)
             elif opcion_3 == "3":
                 proximas_evaluaciones(14)
-
+            elif opcion_3 == "4":
+                graficar_evolucion(ramos)
